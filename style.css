@@ -26,7 +26,7 @@ main {
 }
 
 h1 {
-  color: var(--secondary-color);
+  color: #b28cfa !important; /* Dein neues Lila */
   border-bottom: 3px solid var(--primary-color);
   padding-bottom: 10px;
   margin-top: 0;
@@ -170,4 +170,41 @@ body.dark-mode form {
 td:first-child a:hover {
   color: var(--primary-color) !important;
   text-decoration: underline !important;
+}
+/* Den verlinkten Titel in der Tabelle lila machen */
+td:first-child a {
+  color: #b28cfa !important; /* Ein schönes, modernes Lila */
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+/* Farbe beim Darübergleiten mit der Maus (Hover) */
+td:first-child a:hover {
+  color: #d0b3ff !important; /* Ein noch helleres Lila beim Hovern */
+  text-decoration: underline !important;
+}
+
+/* --- STATISTIK KARTEN --- */
+.stat-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  flex: 1;
+  min-width: 140px;
+  background: var(--white);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Rahmenfarbe im Dark Mode anpassen */
+body.dark-mode .stat-card {
+  border-color: #333;
 }

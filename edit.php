@@ -27,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $title = trim($_POST['title']);
   $genre = trim($_POST['genre']);
   $description = trim($_POST['description']);
+  $cover_image = trim($_POST['cover_image']); // <-- 1. Bild-URL aus dem Formular holen!
   $rating = $_POST['rating'];
   $status = $_POST['status'];
 
@@ -34,10 +35,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $error = 'Bitte geben Sie einen Titel ein.';
   } else {
     try {
-      // WICHTIG: Hier nutzen wir UPDATE statt INSERT!
-      $sql = "UPDATE media SET title = ?, genre = ?, description = ?, rating = ?, status = ? WHERE id = ?";
+      // 2. SQL UPDATE-Befehl erweitern um "cover_image = ?"
+      $sql = "UPDATE media SET title = ?, genre = ?, description = ?, cover_image = ?, rating = ?, status = ? WHERE id = ?";
       $stmt = $pdo->prepare($sql);
-      $stmt->execute([$title, $genre, $description, $rating, $status, $id]);
+
+      // 3. WICHTIG: Die Reihenfolge im Array MUSS exakt dem SQL-Befehl oben entsprechen. $id bleibt ganz hinten!
+      $stmt->execute([$title, $genre, $description, $cover_image, $rating, $status, $id]);
 
       // Zurück zur Übersicht
       header('Location: index.php');
@@ -61,20 +64,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <button onclick="toggleDarkMode()" class="theme-toggle" id="theme-btn">🌙 Night Mode</button>
 
 <script>
-  // 1. Beim Laden der Seite prüfen, was im Browser-Speicher steht
   if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark-mode');
     document.getElementById('theme-btn').innerText = '☀️ Light Mode';
   }
 
-  // 2. Die Funktion, die beim Klicken umschaltet
   function toggleDarkMode() {
     const body = document.body;
     const btn = document.getElementById('theme-btn');
 
     body.classList.toggle('dark-mode');
 
-    // Zustand im LocalStorage des Browsers speichern
     if (body.classList.contains('dark-mode')) {
       localStorage.setItem('theme', 'dark');
       btn.innerText = '☀️ Light Mode';
@@ -84,10 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
   }
 </script>
+
 <header>
   <h1>✏️ Medium bearbeiten</h1>
   <nav>
-    <a href="index.php">⬅️ Zurück zur Übersicht</a>
+    <a href="index.php" class="btn">⬅️ Zurück zur Übersicht</a>
   </nav>
 </header>
 
@@ -114,12 +115,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <div style="margin-bottom: 15px;">
+      <label for="cover_image"><strong>Cover-Bild (Bild-URL von TMDB einfügen):</strong></label><br>
+      <input type="url" id="cover_image" name="cover_image" value="<?php echo htmlspecialchars($item['cover_image'] ?? ''); ?>" placeholder="https://image.tmdb.org/t/p/w500/..." style="width: 100%; max-width: 400px;">
+    </div>
+
+    <div style="margin-bottom: 15px;">
       <label><strong>Bewertung:</strong></label><br>
 
       <div class="star-rating" id="star-container">
         <?php
         $currentRating = $item['rating'];
-        // Diese Schleife baut 5 Sterne und macht sie gold, wenn sie <= der aktuellen Bewertung sind
         for($i = 1; $i <= 5; $i++) {
           $activeClass = ($i <= $currentRating) ? 'active' : '';
           echo "<span class='star $activeClass' data-value='$i'>★</span>";
@@ -155,16 +160,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <div style="margin-bottom: 15px;">
       <label for="status"><strong>Status:</strong></label><br>
-      <select id="status" name="status">
+      <select id="status" name="status" style="width: 100%; max-width: 400px;">
         <option value="nicht gesehen" <?php echo $item['status'] == 'nicht gesehen' ? 'selected' : ''; ?>>Nicht gesehen</option>
         <option value="gesehen" <?php echo $item['status'] == 'gesehen' ? 'selected' : ''; ?>>Gesehen</option>
       </select>
     </div>
 
-    <button type="submit" style="padding: 10px 20px; font-weight: bold; cursor: pointer;">💾 Änderungen speichern</button>
-
-  </form>
-</main>
-
-</body>
-</html>
+    <button type="submit" class="btn" style="padding: 10px 20px; font-weight: bold; cursor: pointer;">💾

@@ -1,48 +1,35 @@
 <?php
 // 1. DATENBANKVERBINDUNG LADEN
-// Hier holen wir uns die $pdo-Variable aus der db.php, damit wir mit der Datenbank sprechen können.
 require_once 'db.php';
 
-// Variablen für Fehlermeldungen oder Erfolgsmeldungen initialisieren
 $error = '';
 
 // 2. PRÜFEN, OB DAS FORMULAR ABGESCHICKT WURDE
-// $_SERVER['REQUEST_METHOD'] === 'POST' bedeutet: Hat der User auf den "Speichern"-Button geklickt?
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   // 3. DATEN AUS DEM FORMULAR AUSLESEN
-  // Wir holen die eingetippten Werte aus dem $_POST-Array.
-  // trim() entfernt dabei versehentliche Leerzeichen am Anfang und Ende.
   $title = trim($_POST['title']);
+  $cover_image = trim($_POST['cover_image']);
   $genre = trim($_POST['genre']);
   $description = trim($_POST['description']);
   $rating = $_POST['rating'];
   $status = $_POST['status'];
 
   // 4. PFLICHTFELDER PRÜFEN
-  // Der Titel darf nicht leer sein, da er in der Datenbank als "NOT NULL" definiert ist.
   if (empty($title)) {
     $error = 'Bitte gib mindestens einen Titel ein!';
   } else {
     try {
       // 5. DATEN IN DIE DATENBANK SPEICHERN (SQL INSERT)
-      // Wir bereiten den SQL-Befehl vor. Die Fragezeichen (?) sind Platzhalter.
-      // Das ist extrem wichtig, um sich vor Hackerangriffen (SQL-Injection) zu schützen!
-      $sql = "INSERT INTO media (title, genre, description, rating, status)
-                    VALUES (?, ?, ?, ?, ?)";
-
+      $sql = "INSERT INTO media (title, genre, description, cover_image, rating, status) VALUES (?, ?, ?, ?, ?, ?)";
       $stmt = $pdo->prepare($sql);
-
-      // Hier ersetzen wir die Fragezeichen mit den echten Werten aus dem Formular
-      $stmt->execute([$title, $genre, $description, $rating, $status]);
+      $stmt->execute([$title, $genre, $description, $cover_image, $rating, $status]);
 
       // 6. ZURÜCK ZUR ÜBERSICHT WEITERLEITEN
-      // Wenn alles geklappt hat, schicken wir den User automatisch zurück zur index.php
       header('Location: index.php');
-      exit; // Das Skript wird hier sofort beendet
+      exit;
 
     } catch (PDOException $e) {
-      // Falls beim Speichern ein Datenbank-Fehler auftritt, wird er hier abgefangen
       $error = 'Fehler beim Speichern: ' . $e->getMessage();
     }
   }
@@ -56,25 +43,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Neues Medium hinzufügen</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* Styling für die Autocomplete-Vorschläge */
+    .autocomplete-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+    }
+    .suggestions-box {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background: var(--white, #fff);
+      border: 1px solid #ddd;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: none;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .suggestion-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      color: var(--text-color, #333);
+    }
+    .suggestion-item:hover {
+      background-color: var(--primary-color, #4A90E2);
+      color: white;
+    }
+    body.dark-mode .suggestions-box {
+      border-color: #444;
+    }
+  </style>
 </head>
 <body>
 <button onclick="toggleDarkMode()" class="theme-toggle" id="theme-btn">🌙 Night Mode</button>
 
 <script>
-  // 1. Beim Laden der Seite prüfen, was im Browser-Speicher steht
   if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark-mode');
     document.getElementById('theme-btn').innerText = '☀️ Light Mode';
   }
 
-  // 2. Die Funktion, die beim Klicken umschaltet
   function toggleDarkMode() {
     const body = document.body;
     const btn = document.getElementById('theme-btn');
-
     body.classList.toggle('dark-mode');
-
-    // Zustand im LocalStorage des Browsers speichern
     if (body.classList.contains('dark-mode')) {
       localStorage.setItem('theme', 'dark');
       btn.innerText = '☀️ Light Mode';
@@ -84,10 +101,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   }
 </script>
+
 <header>
   <h1>➕ Neues Medium hinzufügen</h1>
   <nav>
-    <a href="index.php">⬅️ Zurück zur Übersicht</a>
+    <a href="index.php" class="btn">⬅️ Zurück zur Übersicht</a>
   </nav>
 </header>
 
@@ -100,7 +118,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div style="margin-bottom: 15px;">
       <label for="title"><strong>Titel:</strong> (Pflichtfeld)</label><br>
-      <input type="text" id="title" name="title" required style="width: 100%; max-width: 400px;">
+      <div class="autocomplete-wrapper">
+        <input type="text" id="title" name="title" required style="width: 100%; margin-top: 5px; margin-bottom: 0;" autocomplete="off" placeholder="Tippe einen Titel...">
+        <div id="suggestions" class="suggestions-box"></div>
+      </div>
     </div>
 
     <div style="margin-bottom: 15px;">
@@ -114,55 +135,104 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div style="margin-bottom: 15px;">
-      <label><strong>Bewertung:</strong></label><br>
+      <label for="cover_image"><strong>Cover-Bild (Bild-URL von TMDB einfügen):</strong></label><br>
+      <input type="url" id="cover_image" name="cover_image" placeholder="https://image.tmdb.org/t/p/w500/..." style="width: 100%; max-width: 400px;">
+    </div>
 
-      <div class="star-rating" id="star-container">
+    <div style="margin-bottom: 15px;">
+      <label><strong>Bewertung:</strong></label><br>
+      <div class="star-rating" id="star-container" style="font-size: 28px; cursor: pointer; color: #CCC; user-select: none;">
         <span class="star active" data-value="1">★</span>
         <span class="star active" data-value="2">★</span>
         <span class="star active" data-value="3">★</span>
         <span class="star" data-value="4">★</span>
         <span class="star" data-value="5">★</span>
       </div>
-
       <input type="hidden" id="rating" name="rating" value="3" required>
     </div>
 
-    <script>
-      const stars = document.querySelectorAll('.star');
-      const ratingInput = document.getElementById('rating');
-
-      // Funktion, die die Sterne einfärbt
-      function updateStars(value) {
-        stars.forEach(star => {
-          if (star.getAttribute('data-value') <= value) {
-            star.classList.add('active'); // Gold machen
-          } else {
-            star.classList.remove('active'); // Grau machen
-          }
-        });
-      }
-
-      // Wenn man auf einen Stern klickt
-      stars.forEach(star => {
-        star.addEventListener('click', function() {
-          const value = this.getAttribute('data-value'); // Welcher Stern wurde geklickt?
-          ratingInput.value = value; // Zahl ins versteckte Feld schreiben
-          updateStars(value); // Sterne neu einfärben
-        });
-      });
-    </script>
-
     <div style="margin-bottom: 15px;">
       <label for="status"><strong>Status:</strong></label><br>
-      <select id="status" name="status">
+      <select id="status" name="status" style="width: 100%; max-width: 400px;">
         <option value="nicht gesehen">Nicht gesehen</option>
         <option value="gesehen">Gesehen</option>
       </select>
     </div>
 
-    <button type="submit" style="padding: 10px 20px; font-weight: bold; cursor: pointer;">💾 Speichern</button>
+    <button type="submit" class="btn" style="padding: 10px 20px; font-weight: bold; cursor: pointer;">💾 Speichern</button>
 
   </form>
 </main>
 
+<script>
+  // 1. STERN-LOGIK
+  const stars = document.querySelectorAll('.star');
+  const ratingInput = document.getElementById('rating');
+
+  function updateStars(value) {
+    stars.forEach(star => {
+      if (star.getAttribute('data-value') <= value) {
+        star.classList.add('active');
+      } else {
+        star.classList.remove('active');
+      }
+    });
+  }
+
+  stars.forEach(star => {
+    star.addEventListener('click', function() {
+      const value = this.getAttribute('data-value');
+      ratingInput.value = value;
+      updateStars(value);
+    });
+  });
+
+  // 2. AUTOMATISCHE VORSCHLÄGE (AJAX / Fetch)
+  const titleInput = document.getElementById('title');
+  const suggestionsBox = document.getElementById('suggestions');
+
+  titleInput.addEventListener('input', function() {
+    const value = titleInput.value.trim();
+
+    if (value.length < 1) {
+      suggestionsBox.style.display = 'none';
+      return;
+    }
+
+    // Wir fragen im Hintergrund heimlich unsere search_suggest.php an
+    fetch('search_suggest.php?term=' + encodeURIComponent(value))
+      .then(response => response.json())
+      .then(data => {
+        suggestionsBox.innerHTML = ''; // Box leeren
+
+        if (data.length > 0) {
+          data.forEach(titleText => {
+            const div = document.createElement('div');
+            div.classList.add('suggestion-item');
+            div.innerText = titleText;
+
+            // Wenn man auf einen Vorschlag klickt, Text ins Feld setzen
+            div.addEventListener('click', function() {
+              titleInput.value = titleText;
+              suggestionsBox.style.display = 'none';
+            });
+
+            suggestionsBox.appendChild(div);
+          });
+          suggestionsBox.style.display = 'block';
+        } else {
+          suggestionsBox.style.display = 'none';
+        }
+      });
+  });
+
+  // Schließen der Box, wenn man irgendwo anders hinklickt
+  document.addEventListener('click', function(e) {
+    if (e.target !== titleInput) {
+      suggestionsBox.style.display = 'none';
+    }
+  });
+</script>
+
 </body>
+</html>
