@@ -58,7 +58,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<button onclick="toggleDarkMode()" class="theme-toggle" id="theme-btn">🌙 Night Mode</button>
 
+<script>
+  // 1. Beim Laden der Seite prüfen, was im Browser-Speicher steht
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    document.getElementById('theme-btn').innerText = '☀️ Light Mode';
+  }
+
+  // 2. Die Funktion, die beim Klicken umschaltet
+  function toggleDarkMode() {
+    const body = document.body;
+    const btn = document.getElementById('theme-btn');
+
+    body.classList.toggle('dark-mode');
+
+    // Zustand im LocalStorage des Browsers speichern
+    if (body.classList.contains('dark-mode')) {
+      localStorage.setItem('theme', 'dark');
+      btn.innerText = '☀️ Light Mode';
+    } else {
+      localStorage.setItem('theme', 'light');
+      btn.innerText = '🌙 Night Mode';
+    }
+  }
+</script>
 <header>
   <h1>➕ Neues Medium hinzufügen</h1>
   <nav>

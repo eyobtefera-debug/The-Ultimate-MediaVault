@@ -45,7 +45,32 @@ $mediaItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<button onclick="toggleDarkMode()" class="theme-toggle" id="theme-btn">🌙 Night Mode</button>
 
+<script>
+  // 1. Beim Laden der Seite prüfen, was im Browser-Speicher steht
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    document.getElementById('theme-btn').innerText = '☀️ Light Mode';
+  }
+
+  // 2. Die Funktion, die beim Klicken umschaltet
+  function toggleDarkMode() {
+    const body = document.body;
+    const btn = document.getElementById('theme-btn');
+
+    body.classList.toggle('dark-mode');
+
+    // Zustand im LocalStorage des Browsers speichern
+    if (body.classList.contains('dark-mode')) {
+      localStorage.setItem('theme', 'dark');
+      btn.innerText = '☀️ Light Mode';
+    } else {
+      localStorage.setItem('theme', 'light');
+      btn.innerText = '🌙 Night Mode';
+    }
+  }
+</script>
 <header>
   <h1> THE ULTIMATE MediaVault</h1>
   <nav>
@@ -90,18 +115,20 @@ $mediaItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <tbody>
       <?php foreach ($mediaItems as $item): ?>
         <tr>
-          <td><strong><?php echo htmlspecialchars($item['title']); ?></strong></td>
+          <td>
+            <a href="detail.php?id=<?php echo $item['id']; ?>" style="text-decoration: none; color: var(--secondary-color); font-weight: bold;">
+              <?php echo htmlspecialchars($item['title']); ?>
+            </a>
+          </td>
+
           <td><?php echo htmlspecialchars($item['genre']); ?></td>
           <td><?php echo htmlspecialchars($item['description']); ?></td>
+          <td><?php echo htmlspecialchars($item['rating']); ?></td>
+          <td><?php echo htmlspecialchars($item['status']); ?></td>
+
           <td>
-            <?php echo str_repeat('⭐', $item['rating']); ?>
-          </td>
-          <td>
-            <?php echo $item['status'] === 'gesehen' ? '✅ Gesehen' : '❌ Nicht gesehen'; ?>
-          </td>
-          <td>
-            <a href="edit.php?id=<?php echo $item['id']; ?>">✏️ Bearbeiten</a>
-            <a href="delete.php?id=<?php echo $item['id']; ?>" onclick="return confirm('Möchtest du dieses Medium wirklich löschen?');">🗑️ Löschen</a>
+            <a href="edit.php?id=<?php echo $item['id']; ?>">✏️ Bearbeiten</a> |
+            <a href="delete.php?id=<?php echo $item['id']; ?>">🗑️ Löschen</a>
           </td>
         </tr>
       <?php endforeach; ?>

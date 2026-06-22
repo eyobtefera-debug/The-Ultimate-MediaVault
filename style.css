@@ -123,3 +123,51 @@ input:focus, select:focus, textarea:focus {
 .star-rating .star.active {
   color: #FFD700; /* Leuchtendes Gold */
 }
+
+/* --- NIGHT MODE (DARK MODE) --- */
+body.dark-mode {
+  --bg-color: #121212;         /* Sehr dunkles Grau */
+  --text-color: #E0E0E0;       /* Helles Grau für Text */
+  --white: #1E1E1E;            /* Dunklere Container-Box */
+  --secondary-color: #ECEFF1;  /* Helle Überschriften */
+}
+
+/* Anpassungen für Tabellen und Formulare im Dark Mode */
+body.dark-mode table th {
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+}
+body.dark-mode tr:hover {
+  background-color: #2A2A2A;
+}
+body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
+  background-color: #2D2D2D;
+  color: #FFFFFF;
+  border: 1px solid #444;
+}
+body.dark-mode form {
+  background-color: #1A1A1A !important;
+  border: 1px solid #333 !important;
+}
+
+/* Der Umschalt-Button oben rechts */
+.theme-toggle {
+  float: right;
+  background-color: var(--secondary-color);
+  color: var(--white);
+  border: none;
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: transform 0.2s;
+}
+.theme-toggle:hover {
+  transform: scale(1.05);
+}
+/* Effekt, wenn man mit der Maus über den Titel-Link in der Tabelle fährt */
+td:first-child a:hover {
+  color: var(--primary-color) !important;
+  text-decoration: underline !important;
+}
