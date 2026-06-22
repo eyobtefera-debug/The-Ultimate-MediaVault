@@ -55,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Medium bearbeiten</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -88,9 +89,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <div style="margin-bottom: 15px;">
-      <label for="rating"><strong>Bewertung (1-5 Sterne):</strong></label><br>
-      <input type="number" id="rating" name="rating" min="1" max="5" value="<?php echo htmlspecialchars($item['rating']); ?>" style="width: 50px;">
+      <label><strong>Bewertung:</strong></label><br>
+
+      <div class="star-rating" id="star-container">
+        <?php
+        $currentRating = $item['rating'];
+        // Diese Schleife baut 5 Sterne und macht sie gold, wenn sie <= der aktuellen Bewertung sind
+        for($i = 1; $i <= 5; $i++) {
+          $activeClass = ($i <= $currentRating) ? 'active' : '';
+          echo "<span class='star $activeClass' data-value='$i'>★</span>";
+        }
+        ?>
+      </div>
+
+      <input type="hidden" id="rating" name="rating" value="<?php echo htmlspecialchars($currentRating); ?>" required>
     </div>
+
+    <script>
+      const stars = document.querySelectorAll('.star');
+      const ratingInput = document.getElementById('rating');
+
+      function updateStars(value) {
+        stars.forEach(star => {
+          if (star.getAttribute('data-value') <= value) {
+            star.classList.add('active');
+          } else {
+            star.classList.remove('active');
+          }
+        });
+      }
+
+      stars.forEach(star => {
+        star.addEventListener('click', function() {
+          const value = this.getAttribute('data-value');
+          ratingInput.value = value;
+          updateStars(value);
+        });
+      });
+    </script>
 
     <div style="margin-bottom: 15px;">
       <label for="status"><strong>Status:</strong></label><br>

@@ -55,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Neues Medium hinzufügen</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -88,9 +89,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div style="margin-bottom: 15px;">
-      <label for="rating"><strong>Bewertung (1-5 Sterne):</strong></label><br>
-      <input type="number" id="rating" name="rating" min="1" max="5" value="3" style="width: 50px;">
+      <label><strong>Bewertung:</strong></label><br>
+
+      <div class="star-rating" id="star-container">
+        <span class="star active" data-value="1">★</span>
+        <span class="star active" data-value="2">★</span>
+        <span class="star active" data-value="3">★</span>
+        <span class="star" data-value="4">★</span>
+        <span class="star" data-value="5">★</span>
+      </div>
+
+      <input type="hidden" id="rating" name="rating" value="3" required>
     </div>
+
+    <script>
+      const stars = document.querySelectorAll('.star');
+      const ratingInput = document.getElementById('rating');
+
+      // Funktion, die die Sterne einfärbt
+      function updateStars(value) {
+        stars.forEach(star => {
+          if (star.getAttribute('data-value') <= value) {
+            star.classList.add('active'); // Gold machen
+          } else {
+            star.classList.remove('active'); // Grau machen
+          }
+        });
+      }
+
+      // Wenn man auf einen Stern klickt
+      stars.forEach(star => {
+        star.addEventListener('click', function() {
+          const value = this.getAttribute('data-value'); // Welcher Stern wurde geklickt?
+          ratingInput.value = value; // Zahl ins versteckte Feld schreiben
+          updateStars(value); // Sterne neu einfärben
+        });
+      });
+    </script>
 
     <div style="margin-bottom: 15px;">
       <label for="status"><strong>Status:</strong></label><br>

@@ -3,9 +3,35 @@
 require_once 'db.php';
 
 try {
-  // 2. Medien aus der Datenbank abfragen (alphabetisch nach Titel sortiert)
-  $stmt = $pdo->query("SELECT * FROM media ORDER BY title ASC");
-  $mediaItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// --- SORTIEREN & FILTERN LOGIK ---
+  $orderBy = "title ASC"; // Standard-Sortierung (A-Z)
+  $whereClause = "";
+  $params = [];
+
+// 1. Wurde ein Filter gewählt?
+  if (isset($_GET['status']) && $_GET['status'] != '') {
+    $whereClause = "WHERE status = ?";
+    $params[] = $_GET['status']; // Sicherer Parameter für PDO
+  }
+
+// 2. Wurde eine Sortierung gewählt?
+  if (isset($_GET['sort'])) {
+    if ($_GET['sort'] == 'rating_desc') {
+      $orderBy = "rating DESC"; // Beste Bewertung zuerst
+    } elseif ($_GET['sort'] == 'rating_asc') {
+      $orderBy = "rating ASC";  // Schlechteste Bewertung zuerst (NEU!)
+    } elseif ($_GET['sort'] == 'title_asc') {
+      $orderBy = "title ASC";   // Alphabetisch
+    }
+  }
+
+// 3. SQL zusammenbauen und ausführen
+  $sql = "SELECT * FROM media $whereClause ORDER BY $orderBy";
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute($params);
+// ----------------------------------
+
+$mediaItems = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
   die("Fehler beim Laden der Medien: " . $e->getMessage());
 }
@@ -16,19 +42,37 @@ try {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Media Vault - Übersicht</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
   <h1> THE ULTIMATE MediaVault</h1>
   <nav>
-    <a href="add.php" style="font-weight: bold;">➕ Neues Medium hinzufügen</a>
   </nav>
 </header>
 
 <main>
   <h2>Deine Mediensammlung</h2>
+  <a href="add.php" class="btn">➕ Neues Medium hinzufügen</a>
+  <form method="GET" action="index.php" style="background: var(--bg-color); padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #ddd;">
 
+    <label for="status" style="font-weight: bold; margin-right: 5px;">Filtern:</label>
+    <select name="status" id="status" style="width: auto; display: inline-block; margin-right: 20px; margin-top: 0;">
+      <option value="">Alle anzeigen</option>
+      <option value="gesehen" <?php echo (isset($_GET['status']) && $_GET['status'] == 'gesehen') ? 'selected' : ''; ?>>Gesehen</option>
+      <option value="nicht gesehen" <?php echo (isset($_GET['status']) && $_GET['status'] == 'nicht gesehen') ? 'selected' : ''; ?>>Nicht gesehen</option>
+    </select>
+
+    <label for="sort" style="font-weight: bold; margin-right: 5px;">Sortieren nach:</label>
+    <select name="sort" id="sort" style="width: auto; display: inline-block; margin-right: 20px; margin-top: 0;">
+      <option value="title_asc" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'title_asc') ? 'selected' : ''; ?>>Titel (A-Z)</option>
+      <option value="rating_desc" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'rating_desc') ? 'selected' : ''; ?>>Bewertung (Beste zuerst)</option>
+      <option value="rating_asc" <?php echo (isset($_GET['sort']) && $_GET['sort'] == 'rating_asc') ? 'selected' : ''; ?>>Bewertung (Schlechteste zuerst)</option>
+    </select>
+
+    <button type="submit" class="btn" style="padding: 8px 15px;">Anwenden</button>
+  </form>
   <?php if (empty($mediaItems)): ?>
     <p>Dein Vault ist noch leer. Klicke oben auf "Neues Medium hinzufügen", um zu starten!</p>
   <?php else: ?>
@@ -56,7 +100,7 @@ try {
             <?php echo $item['status'] === 'gesehen' ? '✅ Gesehen' : '❌ Nicht gesehen'; ?>
           </td>
           <td>
-            <a href="edit.php?id=<?php echo $item['id']; ?>">✏️ Bearbeiten</a> |
+            <a href="edit.php?id=<?php echo $item['id']; ?>">✏️ Bearbeiten</a>
             <a href="delete.php?id=<?php echo $item['id']; ?>" onclick="return confirm('Möchtest du dieses Medium wirklich löschen?');">🗑️ Löschen</a>
           </td>
         </tr>

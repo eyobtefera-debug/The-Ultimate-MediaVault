@@ -1,0 +1,125 @@
+/* --- GRUNDEINSTELLUNGEN --- */
+:root {
+  --primary-color: #4A90E2;    /* Ein schönes, modernes Blau */
+  --secondary-color: #2C3E50;  /* Dunkles Blaugrau für Überschriften */
+  --bg-color: #F4F7F6;         /* Sehr helles Grau für den Hintergrund */
+  --text-color: #333333;       /* Dunkelgrau für bessere Lesbarkeit */
+  --white: #FFFFFF;
+}
+
+body {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 40px 20px;
+}
+
+/* --- DIE HAUPTBOX (CONTAINER) --- */
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: var(--white);
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); /* Sanfter Schatten */
+}
+
+h1 {
+  color: var(--secondary-color);
+  border-bottom: 3px solid var(--primary-color);
+  padding-bottom: 10px;
+  margin-top: 0;
+}
+
+/* --- BUTTONS & LINKS --- */
+a.btn, button {
+  text-decoration: none;
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: 10px 18px;
+  border-radius: 6px;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease; /* Weicher Übergang beim Hovern */
+  display: inline-block;
+}
+
+a.btn:hover, button:hover {
+  background-color: #357ABD;
+  transform: translateY(-2px); /* Button hebt sich leicht an */
+  box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+}
+
+/* --- TABELLE (ÜBERSICHT) --- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 25px;
+}
+
+th, td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #EEEEEE;
+}
+
+th {
+  background-color: var(--secondary-color);
+  color: var(--white);
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+th:first-child { border-top-left-radius: 8px; }
+th:last-child { border-top-right-radius: 8px; }
+
+tr:hover {
+  background-color: #F9FAFC; /* Zeile wird leicht grau beim Drüberfahren */
+}
+
+/* Links in der Tabelle (Bearbeiten / Löschen) */
+td a {
+  text-decoration: none;
+  color: var(--primary-color);
+  font-weight: bold;
+  margin-right: 10px;
+}
+td a:hover {
+  color: #E74C3C; /* Wird rot beim Hovern (besonders gut fürs Löschen) */
+}
+
+/* --- FORMULARE (ADD & EDIT) --- */
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #CCC;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.3s;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+}
+
+/* --- INTERAKTIVE STERNE (JavaScript) --- */
+.star-rating {
+  font-size: 28px;
+  cursor: pointer;
+  color: #CCCCCC; /* Graue Sterne als Basis */
+  user-select: none;
+}
+
+/* Wenn ein Stern aktiv ist (angeklickt wurde) */
+.star-rating .star.active {
+  color: #FFD700; /* Leuchtendes Gold */
+}
