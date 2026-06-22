@@ -149,7 +149,8 @@ try {
       <tr>
         <th>Cover</th>
         <th>Titel</th>
-        <th>Kategorie / Genre</th>
+        <th>Kategorie</th>
+        <th>Typ</th>
         <th>Beschreibung</th>
         <th>Bewertung</th>
         <th>Status</th>
@@ -161,33 +162,33 @@ try {
         <tr>
           <td>
             <?php if (!empty($item['cover_image'])): ?>
-              <img src="<?php echo htmlspecialchars($item['cover_image']); ?>" alt="Cover" style="width: 60px; height: 90px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+              <img src="<?php echo htmlspecialchars($item['cover_image']); ?>" alt="Cover" style="width: 60px; height: 90px; object-fit: cover; border-radius: 6px;">
             <?php else: ?>
-              <div class="cover-placeholder">Kein Bild</div>
+              <div style="width: 60px; height: 90px; background: #eee;">Kein Bild</div>
             <?php endif; ?>
           </td>
-
-          <td>
-            <a href="detail.php?id=<?php echo $item['id']; ?>">
-              <?php echo htmlspecialchars($item['title']); ?>
-            </a>
-          </td>
-
+          <td><a href="detail.php?id=<?php echo $item['id']; ?>"><?php echo htmlspecialchars($item['title']); ?></a></td>
           <td><?php echo htmlspecialchars($item['genre']); ?></td>
-          <td><?php echo htmlspecialchars($item['description']); ?></td>
+          <td><?php echo htmlspecialchars($item['type'] ?? 'Film'); ?></td>
+          <td class="description-cell">
+            <?php echo htmlspecialchars(substr($item['description'], 0, 80)) . (strlen($item['description']) > 80 ? '...' : ''); ?>
+          </td>
           <td style="color: #FFD700; font-size: 18px; letter-spacing: 2px;">
-            <?php echo str_repeat('★', $item['rating']) . str_repeat('☆', 5 - $item['rating']); ?>
+            <?php
+            $rating = (int)($item['rating'] ?? 0);
+            echo str_repeat('★', $rating) . str_repeat('☆', 5 - $rating);
+            ?>
           </td>
           <td><?php echo htmlspecialchars($item['status']); ?></td>
-
           <td>
-            <a href="edit.php?id=<?php echo $item['id']; ?>">✏️ Bearbeiten</a> |
-            <a href="delete.php?id=<?php echo $item['id']; ?>">🗑️ ...</a>
+            <a href="edit.php?id=<?php echo $item['id']; ?>">✏️</a> |
+            <a href="delete.php?id=<?php echo $item['id']; ?>">🗑️</a>
           </td>
         </tr>
       <?php endforeach; ?>
       </tbody>
     </table>
+
   <?php endif; ?>
 </main>
 

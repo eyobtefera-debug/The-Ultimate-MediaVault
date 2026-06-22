@@ -208,3 +208,11 @@ td:first-child a:hover {
 body.dark-mode .stat-card {
   border-color: #333;
 }
+
+.description-cell {
+  max-width: 200px; /* Maximale Breite der Spalte */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
