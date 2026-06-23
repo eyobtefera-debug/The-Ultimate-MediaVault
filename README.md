@@ -22,6 +22,12 @@
 4. **Start:** Starten Sie Ihren lokalen Webserver, verschieben Sie den Ordner in das `htdocs`-Verzeichnis und rufe `index.php` im Browser auf.
 5. **API-Key:** Der TMDB-API-Key ist bereits in der `add.php` hinterlegt und sofort einsatzbereit.
 
+##  Datenbank-Setup
+Um die Anwendung lokal zu starten, müssen die Tabellenstrukturen in Ihrer MySQL-Umgebung vorhanden sein:
+1. Importieren Sie die Datei `database.sql` über Ihr Datenbank-Tool (z. B. phpMyAdmin).
+2. Diese Datei enthält die notwendige Tabelle `media` sowie alle Spaltenstrukturen, die für das Projekt erforderlich sind.
+3. Falls Sie die Datenbank manuell erstellen, stellen Sie sicher, dass das Feld `type` (VARCHAR(20), Default: 'Film') vorhanden ist.
+
 ## 📁 Projektstruktur
 * `index.php`: Hauptübersicht mit Dashboard, Filtern und Tabellendarstellung.
 * `add.php`: Formular zur automatisierten Anlage von Medien (inkl. Live-Suchanbindung).
