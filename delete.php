@@ -18,7 +18,7 @@ if (isset($_GET['id'])) {
   }
 }
 
-// 4. Den User sofort wieder zurück zur Übersicht schicken
+
 header('Location: index.php');
 exit; // Skript sauber beenden
 ?>
